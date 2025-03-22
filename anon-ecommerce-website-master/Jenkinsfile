@@ -5,6 +5,7 @@ pipeline {
         IMAGE_NAME = "mywebsite"
         CONTAINER_NAME = "mywebsite_container"
         DOCKER_REGISTRY = "skuser123"
+        DOCKER_PASSWORD= "Skuser@12345"
     }
 
     stages {
@@ -17,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${skuser123}/${mywebsite}:latest ."
+                    sh "docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest ."
                 }
             }
         }
@@ -25,9 +26,9 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'skuser123', variable: 'Skuser@12345')]) {
-                        sh "echo $Skuser@12345 | docker login -u ${skuser123} --password-stdin"
-                        sh "docker push ${skuser123}/${mywebsite}:latest"
+                    withCredentials([string(credentialsId: 'skuser123', variable: 'DOCKER_PASSWORD')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login -u ${DOCKER_REGISTRY} --password-stdin"
+                        sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
                     }
                 }
             }
@@ -36,10 +37,10 @@ pipeline {
         stage('Deploy to Server') {
             steps {
                 script {
-                    sh "docker stop ${mywebsite_container} || true"
-                    sh "docker rm ${mywebsite_container}|| true"
-                    sh "docker pull ${skuser123}/${mywebsite}:latest"
-                    sh "docker run -d -p 80:80 --name ${mywebsite_container} ${skuser123}/${mywebsite}:latest"
+                    sh "docker stop ${CONTAINER_NAME} || true"
+                    sh "docker rm ${CONTAINER_NAME} || true"
+                    sh "docker pull ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
+                    sh "docker run -d -p 80:80 --name ${CONTAINER_NAME} ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
                 }
             }
         }
