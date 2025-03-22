@@ -25,9 +25,9 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKER_PASSWORD')]) {
-                        sh "echo $Skuser@12345 | docker login -u skuser123 --password-stdin"
-                        sh "docker push skuser123/mywebsite:latest"
+                    withCredentials([string(credentialsId: 'skuser123', variable: 'Skuser@12345')]) {
+                        sh "echo ${Skuser@12345} | docker login -u ${skuser123} --password-stdin"
+                        sh "docker push ${skuser123}/${mywebsite}:latest"
                     }
                 }
             }
@@ -36,10 +36,10 @@ pipeline {
         stage('Deploy to Server') {
             steps {
                 script {
-                    sh "docker stop mywebsite_container || true"
-                    sh "docker rm mywebsite_container|| true"
-                    sh "docker pull skuser123/mywebsite:latest"
-                    sh "docker run -d -p 80:80 --name mywebsite_container skuser123/mywebsite:latest"
+                    sh "docker stop ${mywebsite_container} || true"
+                    sh "docker rm ${mywebsite_container}|| true"
+                    sh "docker pull ${skuser123}/${mywebsite}:latest"
+                    sh "docker run -d -p 80:80 --name ${mywebsite_container} ${skuser123}/${mywebsite}:latest"
                 }
             }
         }
