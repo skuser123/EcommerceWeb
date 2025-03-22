@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "mywebsite"
+        CONTAINER_NAME = "mywebsite_container"
+        DOCKER_REGISTRY = "skuser123"
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/skuser123/EcommerceWeb.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t skuser123/mywebsite:latest ."
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKER_PASSWORD')]) {
+                        sh "echo $Skuser@12345 | docker login -u skuser123 --password-stdin"
+                        sh "docker push skuser123/mywebsite:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                script {
+                    sh "docker stop mywebsite_container || true"
+                    sh "docker rm mywebsite_container|| true"
+                    sh "docker pull skuser123/mywebsite:latest"
+                    sh "docker run -d -p 80:80 --name mywebsite_container skuser123/mywebsite:latest"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline execution completed."
+        }
+    }
+}
