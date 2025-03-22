@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/skuser123/EcommerceWeb.git'
+                git clone 'https://github.com/skuser123/EcommerceWeb.git'
             }
         }
 
