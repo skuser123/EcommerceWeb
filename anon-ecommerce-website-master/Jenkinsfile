@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'skuser123', variable: 'Skuser@12345')]) {
-                        sh "echo ${Skuser@12345} | docker login -u ${skuser123} --password-stdin"
+                        sh "echo $Skuser@12345 | docker login -u ${skuser123} --password-stdin"
                         sh "docker push ${skuser123}/${mywebsite}:latest"
                     }
                 }
